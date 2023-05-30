@@ -9,6 +9,7 @@ import {
 	AuthMethodType,
 	AuthMethodVerifyRegistrationResponse,
 	AuthMethodVerifyToFetchResponse,
+	RegistrationRequest,
 	WebAuthnVerifyRegistrationRequest,
 } from "../../models";
 
@@ -65,7 +66,7 @@ export async function webAuthnVerifyRegistrationHandler(
 	req: Request<
 		{},
 		AuthMethodVerifyRegistrationResponse,
-		WebAuthnVerifyRegistrationRequest,
+		RegistrationRequest,
 		ParsedQs,
 		Record<string, any>
 	>,
@@ -74,78 +75,21 @@ export async function webAuthnVerifyRegistrationHandler(
 		Record<string, any>,
 		number
 	>,
-) {
-	// Get RP_ID from request Origin.
-	const rpID = getDomainFromUrl(req.get("Origin") || "localhost");
-
-	// Check if PKP already exists for this credentialRawId.
-	console.log("credentialRawId", req.body.credential.rawId);
-
-	const authMethodId = generateAuthMethodId(req.body.credential.rawId);
+) {	
+	let { authMethodId, authMethodPubkey } = req.body;
 	try {
-		const pubKey = await getPubkeyForAuthMethod({
-			authMethodType: AuthMethodType.WebAuthn,
-			authMethodId,
-		});
-
-		if (pubKey !== "0x" && !ethers.BigNumber.from(pubKey).isZero()) {
-			console.info("PKP already exists for this credential raw ID");
-			return res.status(400).send({
-				error: "PKP already exists for this credential raw ID, please try another one",
+		if (!authMethodPubkey) {
+			return res.status(404).json({
+				error: "Auth method pubkey not found in request body"
 			});
 		}
-	} catch (error) {
-		const _error = error as Error;
-		console.error(_error);
-		return res.status(500).send({
-			error: "Unable to verify if PKP already exists",
-		});
-	}
-
-	// WebAuthn verification.
-	let verification: VerifiedRegistrationResponse;
-	try {
-		const opts: VerifyRegistrationResponseOpts = {
-			credential: req.body.credential,
-			expectedChallenge: () => true, // we don't work with challenges in registration
-			expectedOrigin: config.expectedOrigins,
-			expectedRPID: rpID,
-			requireUserVerification: true,
-		};
-		verification = await verifyRegistrationResponse(opts);
-	} catch (error) {
-		const _error = error as Error;
-		console.error(_error);
-		return res.status(400).send({ error: _error.message });
-	}
-
-	const { verified, registrationInfo } = verification;
-
-	// Mint PKP for user.
-	if (!verified || !registrationInfo) {
-		console.error("Unable to verify registration", { verification });
-		return res.status(400).json({
-			error: "Unable to verify registration",
-		});
-	}
-
-	const { credentialPublicKey } = registrationInfo;
-	console.log("registrationInfo", { registrationInfo });
-
-	try {
-		const cborEncodedCredentialPublicKey = hexlify(
-			utils.arrayify(credentialPublicKey),
-		);
-		console.log("cborEncodedCredentialPublicKey", {
-			cborEncodedCredentialPublicKey,
-		});
 
 		const mintTx = await mintPKP({
 			authMethodType: AuthMethodType.WebAuthn,
 			authMethodId,
 			// We want to use the CBOR encoding here to retain as much information as possible
 			// about the COSE (public) key.
-			authMethodPubkey: cborEncodedCredentialPublicKey,
+			authMethodPubkey: authMethodPubkey as string,
 		});
 
 		return res.status(200).json({
@@ -164,21 +108,18 @@ export async function webAuthnVerifyToFetchPKPsHandler(
 	req: Request<
 		{},
 		AuthMethodVerifyToFetchResponse,
-		WebAuthnVerifyRegistrationRequest,
+		RegistrationRequest,
 		ParsedQs,
 		Record<string, any>
 	>,
 	res: Response<AuthMethodVerifyToFetchResponse, Record<string, any>, number>,
 ) {
-	// Check if PKP already exists for this credentialRawId.
-	console.log("credentialRawId", req.body.credential.rawId);
-
 	try {
-		const idForAuthMethod = generateAuthMethodId(req.body.credential.rawId);
+		let { authMethodId } = req.body;
 
 		const pkps = await getPKPsForAuthMethod({
 			authMethodType: AuthMethodType.WebAuthn,
-			idForAuthMethod,
+			idForAuthMethod: authMethodId,
 		});
 		console.info("Fetched PKPs with WebAuthn", {
 			pkps: pkps,
@@ -192,10 +133,6 @@ export async function webAuthnVerifyToFetchPKPsHandler(
 			error: "Unable to fetch PKPs for given WebAuthn",
 		});
 	}
-}
-
-function generateAuthMethodId(credentialRawId: string): string {
-	return utils.keccak256(toUtf8Bytes(`${credentialRawId}:lit`));
 }
 
 // Generate default username given timestamp, using timestamp format YYYY-MM-DD HH:MM:SS)
