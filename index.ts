@@ -50,7 +50,11 @@ import {
 	walletVerifyToFetchPKPsHandler,
 } from "./routes/auth/wallet";
 import config from "./config";
-import { otpVerifyToFetchPKPsHandler, otpVerifyToMintHandler } from "./routes/auth/otp";
+import {
+	otpVerifyToFetchPKPsHandler,
+	otpVerifyToMintHandler,
+} from "./routes/auth/otp";
+import { health } from "./routes/auth/health";
 
 const app = express();
 
@@ -164,6 +168,8 @@ app.get("/generate-registration-options", (req, res) => {
 	res.send(options);
 });
 
+app.get("/healthz", health);
+
 /**
  * Login (a.k.a. "Authentication")
  */
@@ -192,7 +198,6 @@ app.get("/generate-authentication-options", (req, res) => {
 
 	res.send(options);
 });
-
 
 // --- Store condition
 app.post("/store-condition", storeConditionHandler);
