@@ -99,7 +99,7 @@ export async function discordOAuthVerifyToFetchPKPsHandler(
 ) {
 	// get Discord access token from body
 	const { accessToken } = req.body;
-
+	console.log("accessToken", accessToken);
 	// verify access token by fetching user info
 	let userId: string;
 	try {
