@@ -11,15 +11,6 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"exports": {
-		".": {
-			"require": "./dist/index.js",
-			"import": {
-				"types": "./dist/index.d.ts"
-			}
-		},
-		"./package.json": "./package.json"
-	},
 	"dependencies": {
 		"@simplewebauthn/server": "6.2.1",
 		"base64url": "^3.0.1",
