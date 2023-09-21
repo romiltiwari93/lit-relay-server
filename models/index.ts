@@ -1,4 +1,5 @@
 import type { RegistrationCredentialJSON } from "@simplewebauthn/typescript-types";
+import { ethers } from "ethers";
 
 export interface GoogleOAuthVerifyRegistrationRequest {
 	idToken: string;
@@ -10,6 +11,35 @@ export interface DiscordOAuthVerifyRegistrationRequest {
 
 export interface OTPAuthVerifyRegistrationRequest {
 	accessToken: string;
+}
+
+export interface MintNextAndAddAuthMethodsRequest {
+	keyType: string;
+	permittedAuthMethodTypes: string[];
+	permittedAuthMethodIds: string[];
+	permittedAuthMethodPubkeys: string[];
+	permittedAuthMethodScopes: string[][];
+	addPkpEthAddressAsPermittedAddress: boolean;
+	sendPkpToItself: boolean;
+}
+
+export interface Claim {
+	derivedKeyId: string;
+	signatures: ethers.Signature[];
+	pubkey:string;
+	authMethodType: number;
+}
+
+export interface ClaimAndMintResponse {
+	tx: string;
+}
+export interface MintNextAndAddAuthMethodsResponse
+	extends AuthMethodVerifyRegistrationResponse {}
+
+export interface FetchRequest {
+	authMethodId: string;
+	authMethodType: number;
+	authMethodPubKey?: string;
 }
 
 export interface AuthMethodVerifyRegistrationResponse {
@@ -60,8 +90,8 @@ export interface StoreConditionResponse {
 }
 
 export interface OtpVerificationPayload {
-	userId: string,
-	status: boolean,
+	userId: string;
+	status: boolean;
 }
 
 export interface StoreConditionWithSigner {
@@ -96,16 +126,22 @@ export interface SessionSigSignedMessage {
 	expiration: string;
 }
 
+export interface Contract {
+	accessControlConditionsAddress: string;
+	pkpHelperAddress: string;
+	pkpPermissionsAddress: string;
+	pkpNftAddress: string;
+}
+
 export interface Config {
 	redisUrl: string;
 	port: number;
 	enableHttps: boolean;
 	expectedOrigins: string[];
-	accessControlConditionsAddress: string;
-	pkpHelperAddress: string;
-	pkpPermissionsAddress: string;
-	pkpNftAddress: string;
+	serranoContract?: Contract,
+	cayenneContracts?: Contract,
 	useSoloNet: boolean;
+	network: "serrano" | "cayenne";
 }
 
 export enum CapabilityProtocolPrefix {
@@ -126,7 +162,8 @@ export enum AuthMethodType {
 	Discord,
 	Google,
 	GoogleJwt,
-	OTP
+	OTP,
+	StytchOtp = 9,
 }
 
 export interface PKP {

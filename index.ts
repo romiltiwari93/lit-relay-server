@@ -49,12 +49,19 @@ import {
 	walletVerifyToMintHandler,
 	walletVerifyToFetchPKPsHandler,
 } from "./routes/auth/wallet";
+
+import {
+	fetchPKPsHandler,
+	mintNextAndAddAuthMethodsHandler,
+} from "./routes/auth/mintAndFetch";
+
 import config from "./config";
 import {
-	otpVerifyToFetchPKPsHandler,
-	otpVerifyToMintHandler,
-} from "./routes/auth/otp";
-import { health } from "./routes/auth/health";
+	stytchOtpVerifyToFetchPKPsHandler,
+	stytchOtpVerifyToMintHandler,
+} from "./routes/auth/stytchOtp";
+
+import { mintClaimedKeyId } from "./routes/auth/claim";
 
 const app = express();
 
@@ -168,7 +175,6 @@ app.get("/generate-registration-options", (req, res) => {
 	res.send(options);
 });
 
-app.get("/healthz", health);
 
 /**
  * Login (a.k.a. "Authentication")
@@ -203,23 +209,28 @@ app.get("/generate-authentication-options", (req, res) => {
 app.post("/store-condition", storeConditionHandler);
 
 // --- Mint PKP for authorized account
-app.post("/auth/google", googleOAuthVerifyToMintHandler);
-app.post("/auth/discord", discordOAuthVerifyToMintHandler);
-app.post("/auth/wallet", walletVerifyToMintHandler);
-app.post("/auth/otp", otpVerifyToMintHandler);
+app.post("/mint-next-and-add-auth-methods", mintNextAndAddAuthMethodsHandler);
 
 // --- Fetch PKPs tied to authorized account
-app.post("/auth/google/userinfo", googleOAuthVerifyToFetchPKPsHandler);
-app.post("/auth/discord/userinfo", discordOAuthVerifyToFetchPKPsHandler);
-app.post("/auth/wallet/userinfo", walletVerifyToFetchPKPsHandler);
-app.post("/auth/otp/userinfo", otpVerifyToFetchPKPsHandler);
-
-app.post("/auth/webauthn/userinfo", webAuthnVerifyToFetchPKPsHandler);
+app.post("/fetch-pkps-by-auth-method", fetchPKPsHandler);
 
 // --- Poll minting progress
 app.get("/auth/status/:requestId", getAuthStatusHandler);
 
-// --- WebAuthn
+// *** Deprecated ***
+
+app.post("/auth/google", googleOAuthVerifyToMintHandler);
+app.post("/auth/discord", discordOAuthVerifyToMintHandler);
+app.post("/auth/wallet", walletVerifyToMintHandler);
+app.post("/auth/stytch-otp", stytchOtpVerifyToMintHandler);
+
+app.post("/auth/google/userinfo", googleOAuthVerifyToFetchPKPsHandler);
+app.post("/auth/discord/userinfo", discordOAuthVerifyToFetchPKPsHandler);
+app.post("/auth/wallet/userinfo", walletVerifyToFetchPKPsHandler);
+app.post("/auth/stytch-otp/userinfo", stytchOtpVerifyToFetchPKPsHandler);
+
+app.post("/auth/webauthn/userinfo", webAuthnVerifyToFetchPKPsHandler);
+
 app.post(
 	"/auth/webauthn/verify-registration",
 	webAuthnVerifyRegistrationHandler,
@@ -228,6 +239,8 @@ app.get(
 	"/auth/webauthn/generate-registration-options",
 	webAuthnGenerateRegistrationOptionsHandler,
 );
+app.post("/auth/claim", mintClaimedKeyId);
+
 
 if (ENABLE_HTTPS) {
 	const host = "0.0.0.0";

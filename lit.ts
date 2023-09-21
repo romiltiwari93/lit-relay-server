@@ -4,6 +4,9 @@ import { RedisClientType } from "redis";
 import config from "./config";
 import redisClient from "./lib/redisClient";
 import { AuthMethodType, PKP, StoreConditionWithSigner } from "./models";
+import { Sequencer } from "./lib/sequencer";
+import { SiweMessage } from "siwe";
+import { toUtf8Bytes } from "ethers/lib/utils";
 
 export function getProvider() {
 	return new ethers.providers.JsonRpcProvider(
@@ -21,48 +24,112 @@ function getSigner() {
 function getContract(abiPath: string, deployedContractAddress: string) {
 	const signer = getSigner();
 	const contractJson = JSON.parse(fs.readFileSync(abiPath, "utf8"));
-	const ethersContract = new ethers.Contract(
-		deployedContractAddress,
-		contractJson,
-		signer,
-	);
+
+	let ethersContract;
+
+	// -- when passing in the API directly
+	try {
+		ethersContract = new ethers.Contract(
+			deployedContractAddress,
+			contractJson,
+			signer,
+		);
+
+		// -- when reading from a file which we have to access the ABI property
+	} catch (e) {
+		ethersContract = new ethers.Contract(
+			deployedContractAddress,
+			contractJson.abi,
+			signer,
+		);
+	}
 	return ethersContract;
 }
 
 function getAccessControlConditionsContract() {
-	return getContract(
-		"./contracts/AccessControlConditions.json",
-		config.accessControlConditionsAddress,
-	);
+	switch (config.network) {
+		case "serrano":
+			return getContract(
+				"./contracts/serrano/AccessControlConditions.json",
+				config?.serranoContract
+					?.accessControlConditionsAddress as string,
+			);
+		case "cayenne":
+			return getContract(
+				"./contracts/cayenne/AccessControlConditions.json",
+				config?.cayenneContracts
+					?.accessControlConditionsAddress as string,
+			);
+	}
 }
 
 function getPkpHelperContractAbiPath() {
 	if (config.useSoloNet) {
-		return "./contracts/SoloNetPKPHelper.json";
+		return "./contracts/serrano/SoloNetPKPHelper.json";
 	}
-	return "./contracts/PKPHelper.json";
+	switch (config.network) {
+		case "serrano":
+			return "./contracts/serrano/PKPHelper.json";
+		case "cayenne":
+			return "./contracts/cayenne/PKPHelper.json";
+	}
 }
 
 function getPkpNftContractAbiPath() {
 	if (config.useSoloNet) {
-		return "./contracts/SoloNetPKP.json";
+		return "./contracts/serrano/SoloNetPKP.json";
 	}
-	return "./contracts/PKPNFT.json";
+	switch (config.network) {
+		case "serrano":
+			return "./contracts/serrano/PKPNFT.json";
+		case "cayenne":
+			return "./contracts/cayenne/PKPNFT.json";
+	}
 }
 
 function getPkpHelperContract() {
-	return getContract(getPkpHelperContractAbiPath(), config.pkpHelperAddress);
+	switch (config.network) {
+		case "serrano":
+			return getContract(
+				getPkpHelperContractAbiPath(),
+				config?.serranoContract?.pkpHelperAddress as string,
+			);
+		case "cayenne":
+			return getContract(
+				getPkpHelperContractAbiPath(),
+				config?.cayenneContracts?.pkpHelperAddress as string,
+			);
+	}
 }
 
 function getPermissionsContract() {
-	return getContract(
-		"./contracts/PKPPermissions.json",
-		config.pkpPermissionsAddress,
-	);
+	switch (config.network) {
+		case "serrano":
+			return getContract(
+				"./contracts/serrano/PKPPermissions.json",
+				config?.serranoContract?.pkpPermissionsAddress as string,
+			);
+		case "cayenne":
+			return getContract(
+				"./contracts/cayenne/PKPPermissions.json",
+				config?.cayenneContracts?.pkpPermissionsAddress as string,
+			);
+	}
 }
 
 function getPkpNftContract() {
-	return getContract(getPkpNftContractAbiPath(), config.pkpNftAddress);
+	switch (config.network) {
+		case "serrano":
+			return getContract(
+				getPkpNftContractAbiPath(),
+				config?.serranoContract?.pkpNftAddress as string,
+			);
+		case "cayenne":
+			return getContract(
+				getPkpNftContractAbiPath(),
+				config?.cayenneContracts?.pkpNftAddress as string,
+			);
+	}
 }
 
 function prependHexPrefixIfNeeded(hexStr: string) {
@@ -82,6 +149,12 @@ export async function getPkpPublicKey(tokenId: string) {
 	return pkpNft.getPubkey(tokenId);
 }
 
+export async function setSequencerWallet(
+	wallet: ethers.Wallet | ethers.providers.JsonRpcProvider,
+) {
+	Sequencer.Wallet = wallet;
+}
+
 export async function storeConditionWithSigner(
 	storeConditionRequest: StoreConditionWithSigner,
 ): Promise<ethers.Transaction> {
@@ -94,6 +167,52 @@ export async function storeConditionWithSigner(
 		storeConditionRequest.chainId,
 		storeConditionRequest.permanent,
 		utils.getAddress(storeConditionRequest.creatorAddress),
+	);
+	console.log("tx", tx);
+	return tx;
+}
+
+export async function mintPKPV2({
+	keyType,
+	permittedAuthMethodTypes,
+	permittedAuthMethodIds,
+	permittedAuthMethodPubkeys,
+	permittedAuthMethodScopes,
+	addPkpEthAddressAsPermittedAddress,
+	sendPkpToItself,
+}: {
+	keyType: string;
+	permittedAuthMethodTypes: string[];
+	permittedAuthMethodIds: string[];
+	permittedAuthMethodPubkeys: string[];
+	permittedAuthMethodScopes: string[][];
+	addPkpEthAddressAsPermittedAddress: boolean;
+	sendPkpToItself: boolean;
+}): Promise<ethers.Transaction> {
+	console.log(
+		"In mintPKPV2",
+		keyType,
+		permittedAuthMethodTypes,
+		permittedAuthMethodIds,
+		permittedAuthMethodPubkeys,
+		permittedAuthMethodScopes,
+		addPkpEthAddressAsPermittedAddress,
+		sendPkpToItself,
+	);
+	const pkpHelper = getPkpHelperContract();
+	const pkpNft = getPkpNftContract();
+
+	// first get mint cost
+	const mintCost = await pkpNft.mintCost();
+	const tx = await pkpHelper.mintNextAndAddAuthMethods(
+		keyType,
+		permittedAuthMethodTypes,
+		permittedAuthMethodIds,
+		permittedAuthMethodPubkeys,
+		permittedAuthMethodScopes,
+		addPkpEthAddressAsPermittedAddress,
+		sendPkpToItself,
+		{ value: mintCost },
 	);
 	console.log("tx", tx);
 	return tx;
@@ -114,6 +233,86 @@ export async function mintPKP({
 
 	// first get mint cost
 	const mintCost = await pkpNft.mintCost();
+	const sequencer = Sequencer.Instance;
+
+	Sequencer.Wallet = getSigner();
+	// then, mint PKP using helper
+	if (config.useSoloNet) {
+		console.info("Minting PKP against SoloNet PKPHelper contract", {
+			authMethodType,
+			authMethodId,
+			authMethodPubkey,
+		});
+
+		// Get next unminted PKP pubkey.
+		const pkpPubkeyForPkpNft = await getNextAvailablePkpPubkey(redisClient);
+
+		const tx = await sequencer
+			.wait({
+				action: pkpHelper.mintAndAddAuthMethods,
+				params: [
+					pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
+					[authMethodType],
+					[authMethodId],
+					[authMethodPubkey],
+					[[ethers.BigNumber.from("0")]],
+					true,
+					false,
+				],
+				transactionData: { value: mintCost },
+			})
+			.catch((e) => {
+				console.error("Error while minting pkp", e);
+			});
+
+		console.log("tx", tx);
+		return tx;
+	} else {
+		console.info("Minting PKP against PKPHelper contract", {
+			authMethodType,
+			authMethodId,
+			authMethodPubkey,
+		});
+		const tx = await sequencer.wait({
+			action: pkpHelper.mintNextAndAddAuthMethods,
+			params: [
+				2,
+				[authMethodType],
+				[authMethodId],
+				[authMethodPubkey],
+				[[ethers.BigNumber.from("0")]],
+				true,
+				true,
+			],
+			transactionData: { value: mintCost },
+		});
+		console.log("tx", tx);
+		return tx;
+	}
+}
+
+export async function claimPKP({
+	keyId,
+	signatures,
+	authMethodType,
+	authMethodId,
+	authMethodPubkey,
+}: {
+	keyId: string;
+	signatures: ethers.Signature[];
+	authMethodType: AuthMethodType;
+	authMethodId: string;
+	authMethodPubkey: string;
+}): Promise<ethers.ContractReceipt> {
+	console.log("in claimPKP");
+	const pkpHelper = getPkpHelperContract();
+	const pkpNft = getPkpNftContract();
+
+	// first get mint cost
+	const mintCost = await pkpNft.mintCost();
+	const sequencer = Sequencer.Instance;
+
+	Sequencer.Wallet = getSigner();
 
 	// then, mint PKP using helper
 	if (config.useSoloNet) {
@@ -126,16 +325,24 @@ export async function mintPKP({
 		// Get next unminted PKP pubkey.
 		const pkpPubkeyForPkpNft = await getNextAvailablePkpPubkey(redisClient);
 
-		const tx = await pkpHelper.mintAndAddAuthMethods(
-			pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
-			[authMethodType],
-			[authMethodId],
-			[authMethodPubkey],
-			[[ethers.BigNumber.from("0")]],
-			true,
-			false,
-			{ value: mintCost },
-		);
+		const tx = await sequencer
+			.wait({
+				action: pkpHelper.mintAndAddAuthMethods,
+				params: [
+					pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
+					[authMethodType],
+					[authMethodId],
+					[authMethodPubkey],
+					[[ethers.BigNumber.from("0")]],
+					true,
+					false,
+				],
+				transactionData: { value: mintCost },
+			})
+			.catch((e) => {
+				console.error("Error while minting pkp", e);
+			});
+
 		console.log("tx", tx);
 		return tx;
 	} else {
@@ -144,16 +351,23 @@ export async function mintPKP({
 			authMethodId,
 			authMethodPubkey,
 		});
-		const tx = await pkpHelper.mintNextAndAddAuthMethods(
-			2,
-			[authMethodType],
-			[authMethodId],
-			[authMethodPubkey],
-			[[ethers.BigNumber.from("0")]],
-			true,
-			true,
-			{ value: mintCost },
-		);
+		let tx = await sequencer.wait({
+			action: pkpHelper.claimAndMintNextAndAddAuthMethods,
+			params: [
+				2,
+				`0x${keyId}`,
+				signatures,
+				[authMethodType],
+				[`0x${authMethodId}`],
+				[authMethodPubkey],
+				[[ethers.BigNumber.from("0")]],
+				true,
+				true,
+			],
+			transactionData: { value: mintCost },
+		});
+
+		tx = await tx.wait();
 		console.log("tx", tx);
 		return tx;
 	}
