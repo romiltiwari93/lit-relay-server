@@ -22,13 +22,16 @@ function getSigner() {
 }
 
 function getContract(abiPath: string, deployedContractAddress: string) {
+	console.log("getContract", abiPath, deployedContractAddress);
 	const signer = getSigner();
+	console.log("signer", signer);
 	const contractJson = JSON.parse(fs.readFileSync(abiPath, "utf8"));
-
+	console.log("contractJson", contractJson);
 	let ethersContract;
 
 	// -- when passing in the API directly
 	try {
+		console.log("contractJson", contractJson);
 		ethersContract = new ethers.Contract(
 			deployedContractAddress,
 			contractJson,
@@ -37,12 +40,14 @@ function getContract(abiPath: string, deployedContractAddress: string) {
 
 		// -- when reading from a file which we have to access the ABI property
 	} catch (e) {
+		console.error("Error while creating contract", e);
 		ethersContract = new ethers.Contract(
 			deployedContractAddress,
 			contractJson.abi,
 			signer,
 		);
 	}
+	console.log("ethersContract", ethersContract);
 	return ethersContract;
 }
 
