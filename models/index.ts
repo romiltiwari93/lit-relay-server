@@ -26,7 +26,7 @@ export interface MintNextAndAddAuthMethodsRequest {
 export interface Claim {
 	derivedKeyId: string;
 	signatures: ethers.Signature[];
-	pubkey:string;
+	pubkey: string;
 	authMethodType: number;
 }
 
@@ -138,8 +138,8 @@ export interface Config {
 	port: number;
 	enableHttps: boolean;
 	expectedOrigins: string[];
-	serranoContract?: Contract,
-	cayenneContracts?: Contract,
+	serranoContracts?: Contract;
+	cayenneContracts?: Contract;
 	useSoloNet: boolean;
 	network: "serrano" | "cayenne";
 }

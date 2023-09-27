@@ -22,11 +22,8 @@ function getSigner() {
 }
 
 function getContract(abiPath: string, deployedContractAddress: string) {
-	console.log("getContract", abiPath, deployedContractAddress);
 	const signer = getSigner();
-	console.log("signer", signer);
 	const contractJson = JSON.parse(fs.readFileSync(abiPath, "utf8"));
-	console.log("contractJson", contractJson);
 	let ethersContract;
 
 	// -- when passing in the API directly
@@ -47,7 +44,6 @@ function getContract(abiPath: string, deployedContractAddress: string) {
 			signer,
 		);
 	}
-	console.log("ethersContract", ethersContract);
 	return ethersContract;
 }
 
@@ -56,7 +52,7 @@ function getAccessControlConditionsContract() {
 		case "serrano":
 			return getContract(
 				"./contracts/serrano/AccessControlConditions.json",
-				config?.serranoContract
+				config?.serranoContracts
 					?.accessControlConditionsAddress as string,
 			);
 		case "cayenne":
@@ -97,7 +93,7 @@ function getPkpHelperContract() {
 		case "serrano":
 			return getContract(
 				getPkpHelperContractAbiPath(),
-				config?.serranoContract?.pkpHelperAddress as string,
+				config?.serranoContracts?.pkpHelperAddress as string,
 			);
 		case "cayenne":
 			return getContract(
@@ -112,7 +108,7 @@ function getPermissionsContract() {
 		case "serrano":
 			return getContract(
 				"./contracts/serrano/PKPPermissions.json",
-				config?.serranoContract?.pkpPermissionsAddress as string,
+				config?.serranoContracts?.pkpPermissionsAddress as string,
 			);
 		case "cayenne":
 			return getContract(
@@ -127,7 +123,7 @@ function getPkpNftContract() {
 		case "serrano":
 			return getContract(
 				getPkpNftContractAbiPath(),
-				config?.serranoContract?.pkpNftAddress as string,
+				config?.serranoContracts?.pkpNftAddress as string,
 			);
 		case "cayenne":
 			return getContract(
