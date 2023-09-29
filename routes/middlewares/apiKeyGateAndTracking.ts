@@ -10,18 +10,18 @@ export default function apiKeyGateAndTracking(
 	res: Response<any, Record<string, any>, number>,
 	next: NextFunction,
 ) {
-	const apiKey = req.header(API_KEY_HEADER_KEY);
+	/* const apiKey = req.header(API_KEY_HEADER_KEY);
 
 	if (!apiKey) {
 		return res.status(400).json({
 			error: "Missing API key. If you do not have one, please request one at https://forms.gle/osJfmRR2PuZ46Xf98",
 		});
-	}
+	} */
 
 	// increment tracking
-	const now = new Date();
+	/* const now = new Date();
 	const trackingKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}:${apiKey}`;
-	redisClient.incr(trackingKey);
+	redisClient.incr(trackingKey); */
 
 	next();
 }

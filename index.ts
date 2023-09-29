@@ -118,6 +118,16 @@ const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
 	},
 };
 
+app.get("/.well-known/apple-app-site-association", (req, res) => {
+	res.send({
+		applinks: {},
+		webcredentials: {
+			apps: ["9WXN6L8SL7.org.reactjs.native.example.money"],
+		},
+		appclips: {},
+	});
+});
+
 /**
  * Registration (a.k.a. "Registration")
  */
@@ -174,7 +184,6 @@ app.get("/generate-registration-options", (req, res) => {
 
 	res.send(options);
 });
-
 
 /**
  * Login (a.k.a. "Authentication")
@@ -240,7 +249,6 @@ app.get(
 	webAuthnGenerateRegistrationOptionsHandler,
 );
 app.post("/auth/claim", mintClaimedKeyId);
-
 
 if (ENABLE_HTTPS) {
 	const host = "0.0.0.0";
