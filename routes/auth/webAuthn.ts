@@ -40,7 +40,7 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 
 	// Get RP_ID from request Origin.
 	console.log("req.get('Origin')", req.get("Origin"));
-	const rpID = getDomainFromUrl("localhost");
+	const rpID = "localhost"; //getDomainFromUrl("localhost");
 	//const rpID = getDomainFromUrl(req.get("Origin") || "localhost");
 
 	const authenticatorUsername = generateUsernameForOptions(username);

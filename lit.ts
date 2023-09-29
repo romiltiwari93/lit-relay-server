@@ -28,7 +28,6 @@ function getContract(abiPath: string, deployedContractAddress: string) {
 
 	// -- when passing in the API directly
 	try {
-		console.log("contractJson", contractJson);
 		ethersContract = new ethers.Contract(
 			deployedContractAddress,
 			contractJson,
