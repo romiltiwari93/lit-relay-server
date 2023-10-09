@@ -54,18 +54,22 @@ export async function mintNextAndAddAuthMethodsHandler(
 async function airdropLitTokens(requestId: string) {
 	console.debug("Airdropping LIT tokens");
 	const provider = getProvider();
+	console.debug("airdrop provider", provider);
 	const mintReceipt = await provider.waitForTransaction(requestId, 1, 30000);
 	console.debug("Mint Receipt", JSON.stringify(mintReceipt));
 	const tokenIdFromEvent = await getTokenIdFromTransferEvent(mintReceipt);
+	console.debug("Token ID from event", tokenIdFromEvent);
 	const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
+	console.debug("PKP Eth Address", pkpEthAddress);
 	const signer = getSigner();
+	console.debug("Signer", signer);
 	const tx = await signer.sendTransaction({
 		to: pkpEthAddress,
 		value: utils.parseEther("0.000001"),
 	});
 	console.debug("Airdrop transaction", JSON.stringify(tx));
 	await tx.wait();
-	console.debug("Airdrop transaction mined");
+	console.debug("Airdrop transaction mined", JSON.stringify(tx));
 }
 
 // Fetch PKPs for verified Discord account
