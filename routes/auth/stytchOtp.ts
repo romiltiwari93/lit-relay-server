@@ -8,10 +8,17 @@ import {
 	OTPAuthVerifyRegistrationRequest,
 	OtpVerificationPayload,
 } from "../../models";
-import { getPKPsForAuthMethod, mintPKP } from "../../lit";
+import {
+	getPKPsForAuthMethod,
+	getPkpEthAddress,
+	getProvider,
+	getSigner,
+	mintPKP,
+} from "../../lit";
 import fetch from "node-fetch";
 import { utils } from "ethers";
 import { toUtf8Bytes } from "ethers/lib/utils";
+import { getTokenIdFromTransferEvent } from "../../utils/receipt";
 
 export async function stytchOtpVerifyToMintHandler(
 	req: Request<
@@ -34,7 +41,7 @@ export async function stytchOtpVerifyToMintHandler(
 	let orgId: string;
 	try {
 		tokenBody = parseJWT(tmpToken);
-		const audience = (tokenBody['aud'] as string[])[0];
+		const audience = (tokenBody["aud"] as string[])[0];
 		if (!audience) {
 			return res.status(401).json({
 				error: "Unable to parse project Id from token",
@@ -42,8 +49,8 @@ export async function stytchOtpVerifyToMintHandler(
 		}
 		orgId = audience;
 
-		if (tokenBody['sub']) {
-			userId = tokenBody['sub'] as string;
+		if (tokenBody["sub"]) {
+			userId = tokenBody["sub"] as string;
 		} else {
 			return res.status(401).json({
 				error: "Unable to parse user Id from token",
@@ -58,7 +65,9 @@ export async function stytchOtpVerifyToMintHandler(
 
 	// mint PKP for user
 	try {
-		const authMethodId = utils.keccak256(toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`));
+		const authMethodId = utils.keccak256(
+			toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`),
+		);
 		const mintTx = await mintPKP({
 			authMethodType: AuthMethodType.OTP,
 			authMethodId,
@@ -67,6 +76,7 @@ export async function stytchOtpVerifyToMintHandler(
 		console.info("Minting PKP OTP", {
 			requestId: mintTx.hash,
 		});
+		airdropLitTokens(mintTx.hash!);
 		return res.status(200).json({
 			requestId: mintTx.hash,
 		});
@@ -76,6 +86,22 @@ export async function stytchOtpVerifyToMintHandler(
 			error: "Unable to mint PKP for given OTP request",
 		});
 	}
+}
+
+async function airdropLitTokens(requestId: string) {
+	const provider = getProvider();
+	const mintReceipt = await provider.waitForTransaction(requestId, 1, 30000);
+	console.debug("Mint Receipt", JSON.stringify(mintReceipt));
+	const tokenIdFromEvent = await getTokenIdFromTransferEvent(mintReceipt);
+	const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
+	const signer = getSigner();
+	const tx = await signer.sendTransaction({
+		to: pkpEthAddress,
+		value: utils.parseEther("0.000001"),
+	});
+	console.debug("Airdrop transaction", JSON.stringify(tx));
+	await tx.wait();
+	console.debug("Airdrop transaction mined");
 }
 
 export async function stytchOtpVerifyToFetchPKPsHandler(
@@ -95,17 +121,16 @@ export async function stytchOtpVerifyToFetchPKPsHandler(
 	let orgId: string;
 	let tokenBody: Record<string, unknown>;
 	try {
-
 		tokenBody = parseJWT(tmpToken);
-		const audience = (tokenBody['aud'] as string[])[0];
+		const audience = (tokenBody["aud"] as string[])[0];
 		if (!audience) {
 			return res.status(401).json({
 				error: "Unable to parse project Id from token",
 			});
 		}
 		orgId = audience;
-		if (tokenBody['sub']) {
-			userId = tokenBody['sub'] as string;
+		if (tokenBody["sub"]) {
+			userId = tokenBody["sub"] as string;
 		} else {
 			return res.status(401).json({
 				error: "Unable to parse user Id from token",
@@ -120,8 +145,10 @@ export async function stytchOtpVerifyToFetchPKPsHandler(
 
 	// fetch PKPs for user
 	try {
-		let idForAuthMethod: string;	
-		idForAuthMethod = utils.keccak256(toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`));
+		let idForAuthMethod: string;
+		idForAuthMethod = utils.keccak256(
+			toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`),
+		);
 		const pkps = await getPKPsForAuthMethod({
 			authMethodType: AuthMethodType.OTP,
 			idForAuthMethod,
@@ -150,8 +177,10 @@ function parseJWT(jwt: string): Record<string, unknown> {
 	if (parts.length !== 3) {
 		throw new Error("Invalid token length");
 	}
-	let body =  Buffer.from(parts[1], 'base64');
-	let parsedBody: Record<string, unknown> = JSON.parse(body.toString('ascii'));
+	let body = Buffer.from(parts[1], "base64");
+	let parsedBody: Record<string, unknown> = JSON.parse(
+		body.toString("ascii"),
+	);
 	console.log("JWT body: ", parsedBody);
 	return parsedBody;
 }

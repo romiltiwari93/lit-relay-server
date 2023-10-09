@@ -14,7 +14,7 @@ export function getProvider() {
 	);
 }
 
-function getSigner() {
+export function getSigner() {
 	const provider = getProvider();
 	const privateKey = process.env.LIT_TXSENDER_PRIVATE_KEY!;
 	const signer = new ethers.Wallet(privateKey, provider);
