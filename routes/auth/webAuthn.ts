@@ -77,9 +77,11 @@ export async function webAuthnVerifyRegistrationHandler(
 		number
 	>,
 ) {
+	console.log("req.body for verify registration handler", req.body);
 	// Get RP_ID from request Origin.
-	const requestOrigin = req.get("Origin") || "localhost";
-	const rpID = getDomainFromUrl(requestOrigin);
+	//const requestOrigin = req.get("Origin") || "localhost";
+	//const rpID = getDomainFromUrl(requestOrigin);
+	const rpID = "obvious-lit-relay.onrender.com";
 
 	// Check if PKP already exists for this credentialRawId.
 	console.log("credentialRawId", req.body.credential.rawId);
@@ -111,7 +113,7 @@ export async function webAuthnVerifyRegistrationHandler(
 		const opts: VerifyRegistrationResponseOpts = {
 			credential: req.body.credential,
 			expectedChallenge: () => true, // we don't work with challenges in registration
-			expectedOrigin: [requestOrigin],
+			expectedOrigin: ["localhost"],
 			expectedRPID: rpID,
 			requireUserVerification: true,
 		};
@@ -143,16 +145,16 @@ export async function webAuthnVerifyRegistrationHandler(
 			cborEncodedCredentialPublicKey,
 		});
 
-		const mintTx = await mintPKP({
+		/* const mintTx = await mintPKP({
 			authMethodType: AuthMethodType.WebAuthn,
 			authMethodId,
 			// We want to use the CBOR encoding here to retain as much information as possible
 			// about the COSE (public) key.
 			authMethodPubkey: cborEncodedCredentialPublicKey,
-		});
+		}); */
 
 		return res.status(200).json({
-			requestId: mintTx.hash,
+			credentialPublicKey: cborEncodedCredentialPublicKey,
 		});
 	} catch (error) {
 		const _error = error as Error;

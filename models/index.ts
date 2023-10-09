@@ -43,6 +43,7 @@ export interface FetchRequest {
 }
 
 export interface AuthMethodVerifyRegistrationResponse {
+	credentialPublicKey?: string;
 	requestId?: string;
 	error?: string;
 }
