@@ -1,13 +1,21 @@
 import { Request } from "express";
 import { Response } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import { getPKPsForAuthMethod, mintPKPV2 } from "../../lit";
+import {
+	getPKPsForAuthMethod,
+	getPkpEthAddress,
+	getProvider,
+	getSigner,
+	mintPKPV2,
+} from "../../lit";
 import {
 	AuthMethodVerifyToFetchResponse,
 	FetchRequest,
 	MintNextAndAddAuthMethodsRequest,
 	MintNextAndAddAuthMethodsResponse,
 } from "../../models";
+import { getTokenIdFromTransferEvent } from "../../utils/receipt";
+import { utils } from "ethers";
 
 export async function mintNextAndAddAuthMethodsHandler(
 	req: Request<
@@ -29,6 +37,7 @@ export async function mintNextAndAddAuthMethodsHandler(
 		console.info("Minted PKP", {
 			requestId: mintTx.hash,
 		});
+		airdropLitTokens(mintTx.hash!);
 		return res.status(200).json({
 			requestId: mintTx.hash,
 		});
@@ -40,6 +49,23 @@ export async function mintNextAndAddAuthMethodsHandler(
 			error: `Unable to mint PKP`,
 		});
 	}
+}
+
+async function airdropLitTokens(requestId: string) {
+	console.debug("Airdropping LIT tokens");
+	const provider = getProvider();
+	const mintReceipt = await provider.waitForTransaction(requestId, 1, 30000);
+	console.debug("Mint Receipt", JSON.stringify(mintReceipt));
+	const tokenIdFromEvent = await getTokenIdFromTransferEvent(mintReceipt);
+	const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
+	const signer = getSigner();
+	const tx = await signer.sendTransaction({
+		to: pkpEthAddress,
+		value: utils.parseEther("0.000001"),
+	});
+	console.debug("Airdrop transaction", JSON.stringify(tx));
+	await tx.wait();
+	console.debug("Airdrop transaction mined");
 }
 
 // Fetch PKPs for verified Discord account

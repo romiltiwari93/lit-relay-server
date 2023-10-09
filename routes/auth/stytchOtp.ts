@@ -76,7 +76,6 @@ export async function stytchOtpVerifyToMintHandler(
 		console.info("Minting PKP OTP", {
 			requestId: mintTx.hash,
 		});
-		airdropLitTokens(mintTx.hash!);
 		return res.status(200).json({
 			requestId: mintTx.hash,
 		});
@@ -86,22 +85,6 @@ export async function stytchOtpVerifyToMintHandler(
 			error: "Unable to mint PKP for given OTP request",
 		});
 	}
-}
-
-async function airdropLitTokens(requestId: string) {
-	const provider = getProvider();
-	const mintReceipt = await provider.waitForTransaction(requestId, 1, 30000);
-	console.debug("Mint Receipt", JSON.stringify(mintReceipt));
-	const tokenIdFromEvent = await getTokenIdFromTransferEvent(mintReceipt);
-	const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
-	const signer = getSigner();
-	const tx = await signer.sendTransaction({
-		to: pkpEthAddress,
-		value: utils.parseEther("0.000001"),
-	});
-	console.debug("Airdrop transaction", JSON.stringify(tx));
-	await tx.wait();
-	console.debug("Airdrop transaction mined");
 }
 
 export async function stytchOtpVerifyToFetchPKPsHandler(
