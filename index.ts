@@ -131,7 +131,10 @@ app.get("/.well-known/apple-app-site-association", (req, res) => {
 app.get("/.well-known/assetlinks.json", (req, res) => {
 	res.send([
 		{
-			relation: ["delegate_permission/common.get_login_creds"],
+			relation: [
+				"delegate_permission/common.handle_all_urls",
+				"delegate_permission/common.get_login_creds",
+			],
 			target: {
 				namespace: "android_app",
 				package_name: "com.hashhalli.obvious.money",
