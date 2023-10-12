@@ -40,7 +40,7 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 
 	// Get RP_ID from request Origin.
 	console.log("req.get('Origin')", req.get("Origin"));
-	const rpID = "app.obvious.money"; //"obvious-lit-relay.onrender.com"; //getDomainFromUrl("localhost");
+	const rpID = "obvious-lit-relay.onrender.com"; //getDomainFromUrl("localhost");
 	//const rpID = getDomainFromUrl(req.get("Origin") || "localhost");
 
 	const authenticatorUsername = generateUsernameForOptions(username);
@@ -81,7 +81,7 @@ export async function webAuthnVerifyRegistrationHandler(
 	// Get RP_ID from request Origin.
 	//const requestOrigin = req.get("Origin") || "localhost";
 	//const rpID = getDomainFromUrl(requestOrigin);
-	const rpID = "app.obvious.money"; //"obvious-lit-relay.onrender.com";
+	const rpID = "obvious-lit-relay.onrender.com";
 
 	// Check if PKP already exists for this credentialRawId.
 	console.log("credentialRawId", req.body.credential.rawId);
