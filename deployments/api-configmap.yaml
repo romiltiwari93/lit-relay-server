@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: money-lit-relay-config
+  namespace: money-stage
+data:
+  env: |
+    LIT_TXSENDER_PRIVATE_KEY=0xe51275677940b8a31003e4bd342232b22a620701b9fcad5913cecfdf4e6d683d
+    LIT_TXSENDER_RPC_URL=https://chain-rpc.litprotocol.com/http
+    PORT=3000
+    REDIS_URL=redis://embed-redis-cache.prbhz8.clustercfg.use1.cache.amazonaws.com:6379

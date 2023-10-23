@@ -1,0 +1,26 @@
+##
+## This is routed via the ALB ingress controller for money-backedn
+## 
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   namespace: money-stage
+#   name: money-lit-relay-ingress
+#   annotations:
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+#     alb.ingress.kubernetes.io/ssl-redirect: '443'
+#     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:646978790787:certificate/c3f7d85b-bf6b-4833-8c1a-fdfd715adbc2
+# spec:
+#   ingressClassName: alb
+#   rules:
+#     - http:
+#         paths:
+#         - path: /
+#           pathType: Prefix
+#           backend:
+#             service:
+#               name: money-lit-relay-svc
+#               port:
+#                 number: 80
