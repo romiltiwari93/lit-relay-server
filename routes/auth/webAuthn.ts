@@ -39,7 +39,7 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 	const username = req.query.username as string | undefined;
 
 	// Get RP_ID from request Origin.
-	let requestOrigin = req.get("Origin") || req.get("origin") || "localhost";
+	let requestOrigin = req.get("Origin") || req.get("origin");
 	console.log("req.get('Origin')", requestOrigin);
 	if (!requestOrigin) {
 		requestOrigin = window.location.origin;
@@ -84,7 +84,7 @@ export async function webAuthnVerifyRegistrationHandler(
 ) {
 	console.log("req.body for verify registration handler", req.body);
 	// Get RP_ID from request Origin.
-	let requestOrigin = req.get("Origin") || req.get("origin") || "localhost";
+	let requestOrigin = req.get("Origin") || req.get("origin");
 	if (!requestOrigin) {
 		requestOrigin = window.location.origin;
 	}
