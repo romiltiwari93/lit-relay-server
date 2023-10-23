@@ -9,3 +9,6 @@ data:
     LIT_TXSENDER_RPC_URL=https://chain-rpc.litprotocol.com/http
     PORT=3000
     REDIS_URL=redis://embed-redis-cache.prbhz8.clustercfg.use1.cache.amazonaws.com:6379
+    APPLE_BUNDLE_ID=9WXN6L8SL7.com.hashhalli.obvious.money
+    ANDROID_PACKAGE_NAME=com.hashhalli.obvious.money
+    ANDROID_SHA256_CERT_FINGERPRINT=FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C

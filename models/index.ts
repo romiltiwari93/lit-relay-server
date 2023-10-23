@@ -143,6 +143,9 @@ export interface Config {
 	cayenneContracts?: Contract;
 	useSoloNet: boolean;
 	network: "serrano" | "cayenne";
+	appleBundleId: string;
+	androidPackageName: string;
+	andriodSha256CertFingerprint: string;
 }
 
 export enum CapabilityProtocolPrefix {

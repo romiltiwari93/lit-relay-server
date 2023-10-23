@@ -123,7 +123,7 @@ app.get("/.well-known/apple-app-site-association", (req, res) => {
 	res.send({
 		applinks: {},
 		webcredentials: {
-			apps: ["9WXN6L8SL7.org.reactjs.native.example.money"],
+			apps: [config.appleBundleId],
 		},
 		appclips: {},
 	});
@@ -138,9 +138,9 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
 			],
 			target: {
 				namespace: "android_app",
-				package_name: "com.hashhalli.obvious.money",
+				package_name: config.androidPackageName,
 				sha256_cert_fingerprints: [
-					"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+					config.andriodSha256CertFingerprint,
 				],
 			},
 		},
