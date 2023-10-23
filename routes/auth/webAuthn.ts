@@ -35,19 +35,15 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 	req: Request<{}, {}, {}, ParsedQs, Record<string, any>>,
 	res: Response<{}, Record<string, any>, number>,
 ) {
-	console.log("generate registration options", req);
-	console.log("generate registration options", JSON.stringify(req));
 	// Get username from query string
 	const username = req.query.username as string | undefined;
 
 	// Get RP_ID from request Origin.
-	let requestOrigin =
-		req.get("Origin") ||
-		req.get("origin") ||
-		req.headers.origin ||
-		req.headers.host;
-	console.log("req.get('Origin')", requestOrigin);
-	//const rpID = "obvious-lit-relay.onrender.com"; //getDomainFromUrl("localhost");
+	console.log("req.headers", req.headers);
+	console.log("req.headers json", JSON.stringify(req.headers));
+	console.log("req.headers origin", req.headers.origin);
+	console.log("req.headers host", req.headers.host);
+	let requestOrigin = req.headers.origin || req.headers.host;
 	const rpID = getDomainFromUrl(requestOrigin!);
 
 	const authenticatorUsername = generateUsernameForOptions(username);
@@ -84,19 +80,9 @@ export async function webAuthnVerifyRegistrationHandler(
 		number
 	>,
 ) {
-	console.log("req.body for verify registration handler", req);
 	// Get RP_ID from request Origin.
-	let requestOrigin =
-		req.get("Origin") ||
-		req.get("origin") ||
-		req.headers.origin ||
-		req.headers.host;
-	if (!requestOrigin) {
-		requestOrigin = window.location.origin;
-	}
-	console.log("requestOrigin", requestOrigin);
-	const rpID = getDomainFromUrl(requestOrigin);
-	//const rpID = "obvious-lit-relay.onrender.com";
+	let requestOrigin = req.headers.origin || req.headers.host;
+	const rpID = getDomainFromUrl(requestOrigin!);
 
 	// Check if PKP already exists for this credentialRawId.
 	console.log("credentialRawId", req.body.credential.rawId);
