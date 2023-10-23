@@ -35,6 +35,8 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 	req: Request<{}, {}, {}, ParsedQs, Record<string, any>>,
 	res: Response<{}, Record<string, any>, number>,
 ) {
+	console.log("generate registration options", req);
+	console.log("generate registration options", JSON.stringify(req));
 	// Get username from query string
 	const username = req.query.username as string | undefined;
 
@@ -45,12 +47,8 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 		req.headers.origin ||
 		req.headers.host;
 	console.log("req.get('Origin')", requestOrigin);
-	if (!requestOrigin) {
-		requestOrigin = window.location.origin;
-	}
-	console.log("requestOrigin", requestOrigin);
 	//const rpID = "obvious-lit-relay.onrender.com"; //getDomainFromUrl("localhost");
-	const rpID = getDomainFromUrl(requestOrigin);
+	const rpID = getDomainFromUrl(requestOrigin!);
 
 	const authenticatorUsername = generateUsernameForOptions(username);
 	const opts: GenerateRegistrationOptionsOpts = {
