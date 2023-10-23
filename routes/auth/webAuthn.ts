@@ -39,9 +39,14 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 	const username = req.query.username as string | undefined;
 
 	// Get RP_ID from request Origin.
-	console.log("req.get('Origin')", req.get("Origin"));
+	let requestOrigin = req.get("Origin") || req.get("origin") || "localhost";
+	console.log("req.get('Origin')", requestOrigin);
+	if (!requestOrigin) {
+		requestOrigin = window.location.origin;
+	}
+	console.log("requestOrigin", requestOrigin);
 	//const rpID = "obvious-lit-relay.onrender.com"; //getDomainFromUrl("localhost");
-	const rpID = getDomainFromUrl(req.get("Origin") || "localhost");
+	const rpID = getDomainFromUrl(requestOrigin);
 
 	const authenticatorUsername = generateUsernameForOptions(username);
 	const opts: GenerateRegistrationOptionsOpts = {
@@ -79,7 +84,11 @@ export async function webAuthnVerifyRegistrationHandler(
 ) {
 	console.log("req.body for verify registration handler", req.body);
 	// Get RP_ID from request Origin.
-	const requestOrigin = req.get("Origin") || "localhost";
+	let requestOrigin = req.get("Origin") || req.get("origin") || "localhost";
+	if (!requestOrigin) {
+		requestOrigin = window.location.origin;
+	}
+	console.log("requestOrigin", requestOrigin);
 	const rpID = getDomainFromUrl(requestOrigin);
 	//const rpID = "obvious-lit-relay.onrender.com";
 
