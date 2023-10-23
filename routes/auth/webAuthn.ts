@@ -39,10 +39,6 @@ export function webAuthnGenerateRegistrationOptionsHandler(
 	const username = req.query.username as string | undefined;
 
 	// Get RP_ID from request Origin.
-	console.log("req.headers", req.headers);
-	console.log("req.headers json", JSON.stringify(req.headers));
-	console.log("req.headers origin", req.headers.origin);
-	console.log("req.headers host", req.headers.host);
 	let requestOrigin = req.headers.origin || req.headers.host;
 	const rpID = getDomainFromUrl(requestOrigin!);
 
