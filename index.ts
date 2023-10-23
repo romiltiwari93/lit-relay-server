@@ -33,9 +33,9 @@ import {
 	googleOAuthVerifyToFetchPKPsHandler,
 } from "./routes/auth/google";
 import { getAuthStatusHandler } from "./routes/auth/status";
-import limiter from "./routes/middlewares/limiter";
+//import limiter from "./routes/middlewares/limiter";
 import { storeConditionHandler } from "./routes/storeCondition";
-import apiKeyGateAndTracking from "./routes/middlewares/apiKeyGateAndTracking";
+//import apiKeyGateAndTracking from "./routes/middlewares/apiKeyGateAndTracking";
 import {
 	webAuthnVerifyRegistrationHandler,
 	webAuthnGenerateRegistrationOptionsHandler,
@@ -71,8 +71,9 @@ app.use(express.static("./public/"));
 app.use(express.json());
 app.use(cors());
 
-app.use(limiter);
-app.use(apiKeyGateAndTracking);
+//REMOVED RATE LIMITING AND API_KEY GATING
+//app.use(limiter);
+//app.use(apiKeyGateAndTracking);
 
 /**
  * If the words "metadata statements" mean anything to you, you'll want to enable this route. It

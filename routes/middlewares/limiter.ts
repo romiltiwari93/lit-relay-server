@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+/* import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import redisClient from "../../lib/redisClient";
 
@@ -12,3 +12,4 @@ const limiter = rateLimit({
 });
 
 export default limiter;
+ */
