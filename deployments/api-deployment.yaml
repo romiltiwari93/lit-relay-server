@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: relay-server
-          image: 646978790787.dkr.ecr.us-east-1.amazonaws.com/money-lit-relay:0.5
+          image: 646978790787.dkr.ecr.us-east-1.amazonaws.com/money-lit-relay:0.6
           ports:
             - containerPort: 3000
               protocol: TCP
