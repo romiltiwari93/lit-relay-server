@@ -23,6 +23,8 @@ export async function mintClaimedKeyId(
 		number
 	>,
 ) {
+	console.debug(`mintClaimedKeyId: ${JSON.stringify(req)}`);
+	console.info("mintClaimedKeyId: ", req.body);
 	const { derivedKeyId, authMethodType, signatures } = req.body;
 	try {
 		let mintTx = await claimPKP({
