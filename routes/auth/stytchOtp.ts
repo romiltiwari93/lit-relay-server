@@ -133,7 +133,7 @@ export async function stytchOtpVerifyToFetchPKPsHandler(
 			toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`),
 		);
 		const pkps = await getPKPsForAuthMethod({
-			authMethodType: AuthMethodType.OTP,
+			authMethodType: AuthMethodType.StytchOtp,
 			idForAuthMethod,
 		});
 		console.info("Fetched PKPs with OTP auth", {
