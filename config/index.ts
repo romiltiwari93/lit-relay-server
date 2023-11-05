@@ -54,12 +54,14 @@ const baseConfig = {
 			CAYENNE_PKP_PERMISSIONS_ADDRESS ||
 			"0x9C5DF2fF1c31Ee3D0eA6456F40Bf81501d24a6fB",
 	},
-	network: NETWORK || "serrano",
+	network: "cayenne", //NETWORK || "serrano",
 	useSoloNet: USE_SOLO_NET === "true",
 	expectedOrigins: EXPECTED_ORIGINS?.split(",") || ["http://localhost:3000"],
 	appleBundleId: APPLE_BUNDLE_ID || "9WXN6L8SL7.com.hashhalli.obvious.money",
 	androidPackageName: ANDROID_PACKAGE_NAME || "com.hashhalli.obvious.money",
-	andriodSha256CertFingerprint: ANDROID_SHA256_CERT_FINGERPRINT || "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+	andriodSha256CertFingerprint:
+		ANDROID_SHA256_CERT_FINGERPRINT ||
+		"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
 };
 
 export default {
