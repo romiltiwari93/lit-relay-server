@@ -103,6 +103,7 @@ function getPkpHelperContract() {
 }
 
 function getPermissionsContract() {
+	console.debug(`config --- ${config.network}`);
 	switch (config.network) {
 		case "serrano":
 			return getContract(
@@ -306,7 +307,9 @@ export async function claimPKP({
 }): Promise<ethers.ContractReceipt> {
 	console.log("in claimPKP");
 	const pkpHelper = getPkpHelperContract();
+	console.log("pkpHelper", pkpHelper);
 	const pkpNft = getPkpNftContract();
+	console.log("pkpNft", pkpNft);
 
 	// first get mint cost
 	const mintCost = await pkpNft.mintCost();
@@ -396,6 +399,7 @@ export async function getPKPsForAuthMethod({
 				authMethodType,
 				idForAuthMethod,
 			);
+			console.debug(`tokenIds --- ${tokenIds}`);
 			const pkps: PKP[] = [];
 			for (let i = 0; i < tokenIds.length; i++) {
 				const pubkey = await pkpPermissions.getPubkey(tokenIds[i]);
