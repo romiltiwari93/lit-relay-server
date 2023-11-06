@@ -307,9 +307,7 @@ export async function claimPKP({
 }): Promise<ethers.ContractReceipt> {
 	console.log("in claimPKP");
 	const pkpHelper = getPkpHelperContract();
-	console.log("pkpHelper", pkpHelper);
 	const pkpNft = getPkpNftContract();
-	console.log("pkpNft", pkpNft);
 
 	// first get mint cost
 	const mintCost = await pkpNft.mintCost();
