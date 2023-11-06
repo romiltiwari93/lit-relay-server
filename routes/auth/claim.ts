@@ -1,12 +1,7 @@
 import { Request } from "express";
 import { Response } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import { AuthMethodType } from "../../models/index";
-import {
-	AuthMethodVerifyRegistrationResponse,
-	Claim,
-	ClaimAndMintResponse,
-} from "../../models";
+import { AuthMethodVerifyRegistrationResponse, Claim } from "../../models";
 import { claimPKP } from "../../lit";
 
 export async function mintClaimedKeyId(
@@ -23,8 +18,8 @@ export async function mintClaimedKeyId(
 		number
 	>,
 ) {
-	console.debug(`mintClaimedKeyId: ${JSON.stringify(req)}`);
 	console.info("mintClaimedKeyId: ", req.body);
+	console.debug(`mintClaimedKeyId: ---- ${JSON.stringify(req.body)}`);
 	const { derivedKeyId, authMethodType, signatures } = req.body;
 	try {
 		let mintTx = await claimPKP({

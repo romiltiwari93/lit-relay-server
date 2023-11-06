@@ -6,19 +6,10 @@ import {
 	AuthMethodVerifyRegistrationResponse,
 	AuthMethodVerifyToFetchResponse,
 	OTPAuthVerifyRegistrationRequest,
-	OtpVerificationPayload,
 } from "../../models";
-import {
-	getPKPsForAuthMethod,
-	getPkpEthAddress,
-	getProvider,
-	getSigner,
-	mintPKP,
-} from "../../lit";
-import fetch from "node-fetch";
+import { getPKPsForAuthMethod, mintPKP } from "../../lit";
 import { utils } from "ethers";
 import { toUtf8Bytes } from "ethers/lib/utils";
-import { getTokenIdFromTransferEvent } from "../../utils/receipt";
 
 export async function stytchOtpVerifyToMintHandler(
 	req: Request<
@@ -132,7 +123,6 @@ export async function stytchOtpVerifyToFetchPKPsHandler(
 		idForAuthMethod = utils.keccak256(
 			toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`),
 		);
-		console.debug(`idForAuthMethod: ${idForAuthMethod}`);
 		const pkps = await getPKPsForAuthMethod({
 			authMethodType: AuthMethodType.OTP,
 			idForAuthMethod,
