@@ -54,7 +54,7 @@ const baseConfig = {
 			CAYENNE_PKP_PERMISSIONS_ADDRESS ||
 			"0x9a0a6DD9D229eEfa5119cEB237c90D843d5e1003",
 	},
-	network: "cayenne", //NETWORK || "serrano",
+	network: NETWORK || "serrano",
 	useSoloNet: USE_SOLO_NET === "true",
 	expectedOrigins: EXPECTED_ORIGINS?.split(",") || ["http://localhost:3000"],
 	appleBundleId: APPLE_BUNDLE_ID || "9WXN6L8SL7.com.hashhalli.obvious.money",
