@@ -85,6 +85,7 @@ export async function fetchPKPsHandler(
 ) {
 	// get Discord access token from body
 	const { authMethodType, authMethodId } = req.body;
+	console.debug(`fetchPKPsHandler: ----  ${JSON.stringify(req.body)}`);
 
 	try {
 		const pkps = await getPKPsForAuthMethod({
