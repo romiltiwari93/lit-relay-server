@@ -132,9 +132,9 @@ export async function stytchOtpVerifyToFetchPKPsHandler(
 		idForAuthMethod = utils.keccak256(
 			toUtf8Bytes(`${userId.toLowerCase()}:${orgId.toLowerCase()}`),
 		);
-		console.debug("idForAuthMethod: ", idForAuthMethod);
+		console.debug(`idForAuthMethod: ${idForAuthMethod}`);
 		const pkps = await getPKPsForAuthMethod({
-			authMethodType: AuthMethodType.StytchOtp,
+			authMethodType: AuthMethodType.OTP,
 			idForAuthMethod,
 		});
 		console.info("Fetched PKPs with OTP auth", {
