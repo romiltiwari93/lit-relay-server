@@ -52,7 +52,7 @@ const baseConfig = {
 			"0x26F573b30644837b37be324079024bceb4e0929e",
 		pkpPermissionsAddress:
 			CAYENNE_PKP_PERMISSIONS_ADDRESS ||
-			"0x9C5DF2fF1c31Ee3D0eA6456F40Bf81501d24a6fB",
+			"0x9a0a6DD9D229eEfa5119cEB237c90D843d5e1003", //"0x9C5DF2fF1c31Ee3D0eA6456F40Bf81501d24a6fB",
 	},
 	network: "cayenne", //NETWORK || "serrano",
 	useSoloNet: USE_SOLO_NET === "true",
