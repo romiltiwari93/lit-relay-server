@@ -62,6 +62,7 @@ import {
 } from "./routes/auth/stytchOtp";
 
 import { mintClaimedKeyId } from "./routes/auth/claim";
+import { resolvePhone } from "./routes/claimable/phone";
 
 const app = express();
 
@@ -139,9 +140,7 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
 			target: {
 				namespace: "android_app",
 				package_name: config.androidPackageName,
-				sha256_cert_fingerprints: [
-					config.andriodSha256CertFingerprint,
-				],
+				sha256_cert_fingerprints: [config.andriodSha256CertFingerprint],
 			},
 		},
 	]);
@@ -268,6 +267,11 @@ app.get(
 	webAuthnGenerateRegistrationOptionsHandler,
 );
 app.post("/auth/claim", mintClaimedKeyId);
+
+/**
+ * this route is used to resolve a phone number to a claimable PKP Eth Address
+ */
+app.get("/claimable/phone/:stytchUserId", resolvePhone);
 
 if (ENABLE_HTTPS) {
 	const host = "0.0.0.0";

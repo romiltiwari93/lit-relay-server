@@ -20,6 +20,7 @@ const {
 	NETWORK,
 	USE_SOLO_NET,
 	EXPECTED_ORIGINS,
+	STYTCH_PROJECT_ID,
 } = process.env;
 
 const baseConfig = {
@@ -62,6 +63,9 @@ const baseConfig = {
 	andriodSha256CertFingerprint:
 		ANDROID_SHA256_CERT_FINGERPRINT ||
 		"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+	stytchProjectId:
+		STYTCH_PROJECT_ID ||
+		"project-test-d942c251-4f02-49a7-9995-1ed3e1f6cb2d",
 };
 
 export default {

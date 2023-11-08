@@ -57,10 +57,18 @@ export interface WebAuthnVerifyRegistrationRequest {
 	credential: RegistrationCredentialJSON;
 }
 
+export interface GetClaimableRequestParams {
+	stytchUserId: string;
+}
+export interface GetClaimableResponse {
+	stytchUserId?: string;
+	pkpEthAddress?: string;
+	pkpPublicKey?: string;
+	error?: string;
+}
 export interface GetAuthStatusRequestParams {
 	requestId: string;
 }
-
 export interface GetAuthStatusResponse {
 	status?: AuthStatus;
 	pkpTokenId?: string;
@@ -146,6 +154,7 @@ export interface Config {
 	appleBundleId: string;
 	androidPackageName: string;
 	andriodSha256CertFingerprint: string;
+	stytchProjectId: string;
 }
 
 export enum CapabilityProtocolPrefix {

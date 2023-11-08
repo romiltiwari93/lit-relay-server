@@ -15,6 +15,7 @@
 	"author": "romil@obvious.technology",
 	"license": "ISC",
 	"dependencies": {
+		"@lit-protocol/lit-node-client-nodejs": "3.0.15",
 		"@lit-protocol/uint8arrays": "^2.2.54",
 		"@simplewebauthn/server": "6.2.1",
 		"base64url": "^3.0.1",
@@ -40,6 +41,7 @@
 		"@types/cors": "^2.8.12",
 		"@types/elliptic": "^6.4.14",
 		"@types/express": "^4.17.13",
+		"@types/jszip": "^3.4.1",
 		"@types/jwk-to-pem": "^2.0.1",
 		"@types/node": "^16.7.4",
 		"@types/node-fetch": "^2.5.12",
