@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: money-lit-relay-cayenne-svc
+  namespace: money-stage
+spec:
+  ports:
+  - name: money-lit-relay-cayenne
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: money-lit-relay-cayenne
+  type: ClusterIP
