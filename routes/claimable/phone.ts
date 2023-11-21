@@ -29,16 +29,14 @@ export async function resolvePhone(
 			stytchUserId,
 			config.stytchProjectId,
 		);
-		console.debug(`/claimable/phone: keyId: ${keyId}`);
+		console.log(`/claimable/phone: keyId: ${keyId}`);
 		const pkpPublicKey = litNodeClient.computeHDPubKey(
 			keyId.replace("0x", ""),
 		);
-		console.debug(`/claimable/phone: claimablePubKey: ${pkpPublicKey}`);
+		console.log(`/claimable/phone: claimablePubKey: ${pkpPublicKey}`);
 		const claimablePubKeyBuffer = Buffer.from(pkpPublicKey, "hex");
 		const pkpEthAddress = computeAddress(claimablePubKeyBuffer);
-		console.debug(
-			`/claimable/phone: claimableEthAddress: ${pkpEthAddress}`,
-		);
+		console.log(`/claimable/phone: claimableEthAddress: ${pkpEthAddress}`);
 
 		return res.status(200).json({
 			stytchUserId,
